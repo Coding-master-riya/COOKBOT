@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Results</title>
+
+</head>
+<body>
+    <h1>Matching Recipes</h1>
+
+    <!-- Debugging line to display the recipes data as JSON -->
+    <p>Recipes: {{ recipes | tojson }}</p>
+
+    {% if recipes %}
+        <ul>
+            {% for recipe in recipes %}
+                <li>
+                    <h2>{{ recipe.name }}</h2>
+                    <p><strong>Cuisine:</strong> {{ recipe.cuisine }}</p>
+                    <p><strong>Total Time:</strong> {{ recipe.total_time }} minutes</p>
+                    <p><strong>Ingredients:</strong> {{ recipe.ingredients | join(', ') }}</p>
+                    <p><strong>Instructions:</strong> {{ recipe.instructions }}</p>
+                    <a href="{{ recipe.url }}" target="_blank">Full Recipe</a>
+                    <br><img src="{{ recipe.image_url }}" alt="{{ recipe.name }} Image">
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No matching recipes found.</p>
+    {% endif %}
+    
+    <a href="/">Go Back</a>
+</body>
+</html>

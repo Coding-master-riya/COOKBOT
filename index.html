@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CookBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=DynaPuff&display=swap" rel="stylesheet">
+    <style>
+        /* Add your existing styles here */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+            background-image: url('{{ url_for('static',filename='images/background.jpg') }}');
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-family: 'DynaPuff', cursive;
+            font-size: 3.5em;
+            color: #ffffff; 
+        }
+
+        header p {
+            font-family: 'DynaPuff', cursive;
+            font-size: 2.2em;
+            color: #ffffff;
+        }
+
+        .auth-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s;
+        }
+
+        .auth-button:hover {
+            background-color: #45a049;
+        }
+
+        .form-container {
+            background-color: #eaf5e6;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .form-container input,
+        .form-container button {
+            width: calc(100% - 40px);
+            margin: 10px 20px;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .form-container button {
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            transition: background-color 0.3s;
+        }
+
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+
+        .results {
+            margin-top: 20px;
+            background-color: #eaf5e6;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .results h2 {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .recipe-item {
+            background-color: #fff;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .recipe-item h3 {
+            font-size: 1.3em;
+            color: #4CAF50;
+        }
+
+        .recipe-item p {
+            color: #555;
+        }
+
+        .recipe-item a {
+            color: #4CAF50;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>CookBot</h1>
+        <p>Create your recipe!</p>
+    </header>
+
+    <div class="form-container">
+        <!-- Form for ingredient search -->
+        <form id="user-form" method="POST" action="/search">
+            <input type="text" id="q" name="ingredients" placeholder="Enter ingredients, e.g., chicken, rice">
+            <button type="submit" id="search-btn">Search</button>
+        </form>
+    </div>
+
+    <div class="results" id="results-section">
+        <h2>Your Recipe Results:</h2>
+        <div id="recipe-results"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            // Handle form submission
+            $('#user-form').on('submit', function(event) {
+                event.preventDefault();  // Prevent the form from submitting traditionally
+
+                const ingredients = $('#q').val();  // Get the ingredients input
+
+                // AJAX request to get the recipes based on user input
+                $.ajax({
+                    url: '/search',
+                    type: 'POST',
+                    data: { ingredients: ingredients },
+                    success: function(response) {
+                        const resultsContainer = $('#recipe-results');
+                        resultsContainer.empty();  // Clear previous results
+
+                        // Check if any recipes are found
+                        if (response.recipes.length > 0) {
+                            response.recipes.forEach(function(recipe) {
+                                const recipeHTML = `
+                                    <div class="recipe-item">
+                                        <h3>${recipe.name}</h3>
+                                        <p><strong>Cuisine:</strong> ${recipe.cuisine}</p>
+                                        <p><strong>Total Time:</strong> ${recipe.total_time} mins</p>
+                                        <p><strong>Ingredients:</strong> ${recipe.ingredients.join(', ')}</p>
+                                        <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                                        <a href="${recipe.url}" target="_blank">Full Recipe</a>
+                                        <br><img src="${recipe.image_url}" alt="${recipe.name} Image">
+                                    </div>
+                                `;
+                                resultsContainer.append(recipeHTML);
+                            });
+                        } else {
+                            resultsContainer.html('<p>No matching recipes found.</p>');
+                        }
+                    },
+                    error: function() {
+                        alert('Error fetching recipe data.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
